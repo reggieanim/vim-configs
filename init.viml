@@ -1,0 +1,161 @@
+:set number
+:set relativenumber
+:set autoindent
+:set tabstop=2
+:set fileformat=unix
+:set shiftwidth=2
+:set expandtab
+:set smarttab
+:set softtabstop=2
+:set mouse=a
+:set smartindent
+:set updatetime=100
+:set termguicolors
+set guifont=Fira\ Code:h14
+set updatetime=100
+
+call plug#begin('~/.vim/plugged')
+Plug 'joshdick/onedark.vim'
+Plug 'savq/melange'
+Plug 'iCyMind/NeoSolarized'
+Plug 'https://github.com/preservim/nerdtree'
+Plug 'https://github.com/tpope/vim-commentary'
+Plug 'https://github.com/neoclide/coc.nvim'  " Auto Completiong
+Plug 'mhinz/vim-startify'
+Plug 'sheerun/vim-polyglot'
+Plug 'APZelos/blamer.nvim'
+Plug 'tpope/vim-surround'
+if has('nvim') || has('patch-8.0.902')
+  Plug 'mhinz/vim-signify'
+else
+  Plug 'mhinz/vim-signify', { 'tag': 'legacy' }
+endif
+Plug 'wakatime/vim-wakatime'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install' }
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
+Plug 'dense-analysis/ale'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'jose-elias-alvarez/null-ls.nvim'
+Plug 'andweeb/presence.nvim'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries'}
+Plug 'https://github.com/rafi/awesome-vim-colorschemes'
+Plug 'https://github.com/pangloss/vim-javascript.git'
+Plug 'https://tpope.io/vim/fugitive.git'
+Plug 'jiangmiao/auto-pairs' 
+Plug 'yuezk/vim-js'
+Plug 'HerringtonDarkholme/yats.vim'
+Plug 'maxmellon/vim-jsx-pretty'
+call plug#end()
+
+let g:ale_fixers = {'javascript': ['prettier_standard']}
+let g:gruvbox_contrast_dark = 'hard'
+let g:ale_fixers = {'json': ['fixjson']}
+let g:ale_linters = {'javascript': ['standard']}
+let g:ale_fix_on_save = 1
+let g:neovide_cursor_vfx_mode = "railgun"
+let g:neovide_refresh_rate=120
+
+
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_function_calls = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_operators = 1
+
+nnoremap <C-f> :NERDTreeFocus<CR>
+nnoremap <A-F> :ALEFix<CR>
+nnoremap <C-n> :NERDTree<CR>
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+xnoremap <leader>p "_dP
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <C-t> :NERDTreeToggle<CR>
+" ap <ESC> key to kj
+nmap <F8> :TagbarToggle<CR>
+
+:colorscheme gruvbox
+let g:mapleader="\<Space>"
+nmap <Leader>ss :<C-u>SessionSave<CR>
+nmap <Leader>sl :<C-u>SessionLoad<CR>
+nmap <Leader>cn :<C-u>DashboardNewFile<CR>
+nnoremap <silent> <Leader>fh :<C-u>Clap history<CR>
+nnoremap <silent> <Leader>ff :<C-u>Clap files ++finder=rg --ignore --hidden --files<cr>
+nnoremap <silent> <Leader>tc :<C-u>Clap colors<CR>
+nnoremap <silent> <Leader>fa :<C-u>Clap grep2<CR>
+nnoremap <silent> <Leader>fb :<C-u>Clap marks<CR>
+nnoremap <silent> <Leader>cn :<C-u>DashboardNewFile<CR>
+
+" returns all modified files of the current git repo
+" `2>/dev/null` makes the command fail quietly, so that when we are not
+" in a git repo, the list will be empty
+function! s:gitModified()
+    let files = systemlist('git ls-files -m 2>/dev/null')
+    return map(files, "{'line': v:val, 'path': v:val}")
+endfunction
+
+" same as above, but show untracked files, honouring .gitignore
+function! s:gitUntracked()
+    let files = systemlist('git ls-files -o --exclude-standard 2>/dev/null')
+    return map(files, "{'line': v:val, 'path': v:val}")
+endfunction
+
+let g:startify_lists = [
+        \ { 'type': 'files',     'header': ['   MRU']            },
+        \ { 'type': 'dir',       'header': ['   MRU '. getcwd()] },
+        \ { 'type': 'sessions',  'header': ['   Sessions']       },
+        \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
+        \ { 'type': function('s:gitModified'),  'header': ['   git modified']},
+        \ { 'type': function('s:gitUntracked'), 'header': ['   git untracked']},
+        \ { 'type': 'commands',  'header': ['   Commands']       },
+        \ ]
+
+
+lua << EOF
+
+
+require('telescope').setup{
+  defaults = {
+    vimgrep_arguments = {
+      'rg',
+      '--color=never',
+      '--no-heading',
+      '--with-filename',
+      '--line-number',
+      '--column',
+      '--smart-case'
+    },
+    prompt_position = "bottom", 
+    prompt_prefix = ">",
+    selection_strategy = "reset",
+    sorting_strategy = "descending",
+    layout_strategy = "horizontal",
+    layout_defaults = {},
+    file_ignore_patterns = {},
+    shorten_path = true,
+    winblend = 0,
+    width = 0.75,
+    preview_cutoff = 120,
+    results_height = 1,
+    results_width = 0.8,
+    border = {},
+    borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰'},
+    color_devicons = true,
+    use_less = true,
+    mappings = {
+      n = {
+    	  ['<c-d>'] = require('telescope.actions').delete_buffer
+      },
+      i = {
+        ["<C-h>"] = "which_key",
+        ['<c-d>'] = require('telescope.actions').delete_buffer
+      }
+    },
+  }
+}
+EOF
+
