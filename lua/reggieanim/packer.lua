@@ -27,7 +27,17 @@ return require('packer').startup(function(use)
   use ('nvim-treesitter/nvim-treesitter', {run = ':TSUpdate'})
   use ('nvim-treesitter/playground')
   use ('theprimeagen/harpoon')
+        -- git support for vim
   use ('tpope/vim-fugitive')
+  -- comments for vim automatically
+  use ('tpope/vim-commentary')
+  use ('tpope/vim-surround')
+  use ('andweeb/presence.nvim')
+  use ('mhinz/vim-startify')
+  use ('mattn/vim-goimports')
+  use ('rstacruz/vim-closer')
+  use ('mbbill/undotree')
+  use ('f-person/git-blame.nvim')
 
   use {
 	  'VonHeikemen/lsp-zero.nvim',
